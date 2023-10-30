@@ -274,17 +274,19 @@ set(gcf, 'Position', [188,675,516,211])
 
 
 % plotting parameters/rats/vars
+% times = -20:.1:-5;
 times = 0:.1:30;
 rats = [2 3 4 10 12];
-% vars2plot = [2, 3, 5];  % cranial penumbra/distal
-vars2plot = [2, 4, 6];  % caudal penumbra/distal
+vars2plot = [2, 3, 5];  % cranial penumbra/distal
+% vars2plot = [2, 4, 6];  % caudal penumbra/distal
 
 % colormap decision
 paru = (parula(4));
 colors = {'r', paru(2,:), paru(2,:), [234,139,0]/255,  [234,139,0]/255};
 ls = {'--', '-', '-', ':', ':'};
 
-% initialize other variables
+% initialize other variables (choose pre or post)
+% varnames = fieldnames(pre_values);
 varnames = fieldnames(post_values);
 post_combined = struct();
 
@@ -294,7 +296,12 @@ for vn = 1:length(varnames)
     
     % average for each rat
     for rat = 1:length(rats)        
-
+        
+        % for pre plots (supplement)
+%         time_samps = cat(1, pre_values(rats(rat)).Time);
+%         flo_samps = cat(1, pre_values(rats(rat)).(varnames{vn}));
+        
+        % for post plots (main)
         time_samps = cat(1, post_values(rats(rat)).Time);
         flo_samps = cat(1, post_values(rats(rat)).(varnames{vn}));
         
@@ -336,27 +343,34 @@ for vn = 1:length(varnames)
         hold on
         plot(mean_time,mean_flo, 'Color', colors{vn-1}, 'LineWidth', 2, 'LineStyle', ls{vn-1})
     
+        % need to commment areas in find_injury_regions for this to work
         errorbar(-2.6+vn*0.3, mean([pre_values(rats).(varnames{vn})]),std([pre_values(rats).(varnames{vn})]), ...
             'Marker', '.', 'MarkerSize', 14, 'Color', colors{vn-1}, 'LineWidth', 2)
     end
 end
 
-% bootleg stats
-% [h,p] = ttest(post_combined.CaudNormHeight', post_combined.CaudPenHeight');
-% 
-% plot(mean(post_combined.Time'),h*0.6)
 
+% pre supplement
+% legend({'','Umbra','','Penumbra', '','Distal'},'Location', 'best')
+% xlim([-20 -5])
+% xlabel('Time Until Injury (min)');
+
+% post main
 legend({'','Umbra','','','Penumbra','', '','Distal'},'Location', 'best')
 xlabel('Time After Injury (min)');
+% xlim([-3 30])
+xlim([-3 15])
+
+
 ylabel({'Area-Adjusted','Velocity Index (AU)'})
 ylim([0 0.7])
-xlim([-3 30])
+
 set(gca,'FontWeight','bold')
 set(gca,'LineWidth',1.5)
 hold off
 
 %% Save figure
-exportgraphics(figure(6), "C:\Users\Denis\OneDrive - Johns Hopkins\230124 Spatial Distribution Paper\Figures\7. Change over time\230612 Caudal.pdf",'ContentType','vector');
+exportgraphics(figure(6), "C:\Users\Denis\OneDrive - Johns Hopkins\Lab Personal\230824 Spatial Distribution Paper\Figures\7. Change over time\231019 Cranial post.pdf",'ContentType','vector');
 
 %% Fig. 7A: Representative 3D surface plot
 
@@ -440,27 +454,30 @@ lege = legend({'Baseline Flow','','','Umbra','','','Penumbra Peaks'}, 'Location'
 
 % axis labels and position
 ylh = get(gca,'ylabel');
-set(ylh, 'Rotation',-48, 'Position',[-10,-5,0])
+set(ylh, 'Rotation',-48, 'Position',[-10,0,0])
 xlh = get(gca,'xlabel');
 xlp = get(xlh, 'Position');
 set(xlh, 'Rotation',2);
 
 xlim([-8 6])
-zlim([0 0.6])
+zlim([0 0.9])
+ylim([-1 15])
 
 set(gca,'FontWeight','bold')
 set(gca,'LineWidth',1.5)
 %     set(gca, 'Color', 'k')
 
 set(gca, 'CameraPositionMode', 'manual')
-set(gca, 'CameraPosition',[-22.6274 -290.3636 4.1734]);
+% set(gca, 'CameraPosition',[-22.6274 -290.3636 4.1734]);
+set(gca, 'CameraPosition', [-17.928366945994735,-75.422746354860140,4.233415396181620])
 set(gca, 'CameraTargetMode','manual');
-set(gca, 'CameraTarget',[-1 20.9317 0.4000]);
+% set(gca, 'CameraTarget',[-1 20.9317 0.4000]);
+set(gca, 'CameraTarget',[-1,7.500000000000000,0.300000000000000]);
 set(figure(2),'defaultLegendAutoUpdate','off');
 
 %% Save suface plot as rasterized and everything else as vectorized
 
 BitmapRender(gca, [pr, dummypumb, dummyumb]);
-exportgraphics(figure(2), "C:\Users\Denis\OneDrive - Johns Hopkins\230124 Spatial Distribution Paper\Figures\7. Change over time\230612 3D.pdf",'ContentType','vector');
+exportgraphics(figure(2), "C:\Users\Denis\OneDrive - Johns Hopkins\Lab Personal\230824 Spatial Distribution Paper\Figures\7. Change over time\231023 3D.pdf",'ContentType','vector');
 
 

@@ -329,5 +329,21 @@ end
 
 % save("C:\Users\Denis\OneDrive - Johns Hopkins\230124 Spatial Distribution Paper\Figures\6. Spatial bar graphs\230606 barvars2.mat", 'S_bars');
 
+%% Section 6: calculated error of injury label
 
+% discrepancy between umbra location and injury drawn
+injury_label_error = dist([Sval_post.UmbraLoc]);
+
+% value of error
+error_mean = mean(injury_label_error);
+error_std = std(injury_label_error);
+[~, perr] = ttest((injury_label_error));
+
+% magnitude of error
+error_mag = mean(abs(injury_label_error));
+error_mag_std = std(abs(injury_label_error));
+[~, pmag] = ttest(abs(injury_label_error));
+
+fprintf('Average Error: %f +- %f; p = %f \n', error_mean, error_std, perr)
+fprintf('Average Error Magnitude: %f +- %f; p = %f\n', error_mag, error_mag_std, pmag)
 

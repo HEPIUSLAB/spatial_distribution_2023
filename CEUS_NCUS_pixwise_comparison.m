@@ -193,6 +193,8 @@ ns = [];
 X = [];
 Y = [];
 
+err_dist = [];
+
 disp('Correlations:')
 
 % uncomment for single rat plot
@@ -349,6 +351,14 @@ for rat = [2:2:length(S_pixelwise)]
     ns = [ns; length(CEUSvar)];
 
     mdl = fitlm(NCUSvar',CEUSvar');
+    
+    % old linear model (before peer-review)
+%     mdlfunc = @(b,x) b(1)./(1+exp(-b(3).*(x - b(4))));
+%     mdl = fitnlm(NCUSvar',CEUSvar', mdlfunc, [1,1,1,0.5]);
+
+    % new spline model (after peer-review)
+    mdlspline = slmengine(NCUSvar',CEUSvar','knots',[min(NCUSvar) max(NCUSvar)],'increasing','on','concavedown','on');
+    
 
     fprintf('%s rho: %.02f; p: %d; R^2: %02f\n', plottitle, rho, pval, mdl.Rsquared.Ordinary)
 
@@ -360,7 +370,9 @@ for rat = [2:2:length(S_pixelwise)]
 
     if rat == 6
         figure(2)
-        plot(mdl, 'Marker', 'none', 'LineWidth', 1.5)
+%         plot(mdl, 'Marker', 'none', 'LineWidth', 1.5)
+        line(NCUSvar',slmeval(NCUSvar',mdlspline),'LineWidth', 1.5,'color',[0.2 0.2 0.2 0.7])
+%         plotslm(mdlspline)
         hold on
         
         ylabel({'Area-Adjusted','Decay Constant (1/s)'})
@@ -368,14 +380,15 @@ for rat = [2:2:length(S_pixelwise)]
         xlim([0 0.6])
         ylim([0 0.03])
         
-        hFIT = findobj(gca,'DisplayName','Fit');
-        [hFIT.LineWidth]=deal(2);
-        [hFIT.Color]=deal([0.2 0.2 0.2 0.7]);
-        
-        hBounds = [findobj(gca,'DisplayName','') findobj(gca,'DisplayName','Confidence bounds')];
-        [hBounds.LineWidth]=deal(1);
-        [hBounds.LineStyle]=deal('--');
-        [hBounds.Color]=deal([1 0 0 0.6]);
+        % had used for linear plots, no longer used
+%         hFIT = findobj(gca,'DisplayName','Fit');
+%         [hFIT.LineWidth]=deal(2);
+%         [hFIT.Color]=deal([0.2 0.2 0.2 0.7]);
+%         
+%         hBounds = [findobj(gca,'DisplayName','') findobj(gca,'DisplayName','Confidence bounds')];
+%         [hBounds.LineWidth]=deal(1);
+%         [hBounds.LineStyle]=deal('--');
+%         [hBounds.Color]=deal([1 0 0 0.6]);
 
         scatter(NCUSvar, CEUSvar, 'Marker','.', 'MarkerEdgeColor', [0.4 0.4 0.4])
 
@@ -389,15 +402,18 @@ for rat = [2:2:length(S_pixelwise)]
     end
 
     figure(6);
-%     scatter(CEUSvar,NCUSvar)
-    plot(mdl, 'Marker', 'none', 'LineWidth', 1.5)
-%     plot(mdl)
+    line(NCUSvar',slmeval(NCUSvar',mdlspline),'LineWidth', 1.5,'color',[0.2 0.2 0.2 0.7])
     title(plottitle)
     ylabel({'Area-Adjusted','Decay Constant (1/s)'})
     xlabel({'Area-Adjusted Velocity Index (AU)'})
     xlim([0 0.6])
     ylim([0 0.05])
     hold on
+    
+    
+    %%%% for supplement (revision)
+    adj_diff = ((slmeval(NCUSvar,mdlspline) - CEUSvar))/mean(CEUSvar);
+    err_dist = [err_dist; adj_diff];
 
 
     %%%%%%% Shows sample Fig. 4D traces
@@ -417,12 +433,12 @@ for rat = [2:2:length(S_pixelwise)]
     ylabel({'Area-Adjusted','Velocity Index (AU)'})
     title('Non-Contrast Flow Measurement')
 
-    subplot(3,1,3), plot(dist(dist_inds(1):dist_inds(2)), log(NCUSvar./CEUSvar))
+    subplot(3,1,3), plot(dist(dist_inds(1):dist_inds(2)), adj_diff)
     xlabel('Distance from Injury Epicenter (mm)')
     ylabel({'Log Ratio'})
     title('Log of Ratio between the two')
     
-    ylim([0 5]);
+%     ylim([0 5]);
     pause(3)
 
 end
@@ -430,26 +446,62 @@ end
 figure(6)
 hold off
 
-hFIT = findobj(gca,'DisplayName','Fit');
-[hFIT.LineWidth]=deal(2);
-[hFIT.Color]=deal([0.2 0.2 0.2 0.7]);
-
-hBounds = [findobj(gca,'DisplayName',''); findobj(gca,'DisplayName','Confidence bounds')];
-[hBounds.LineWidth]=deal(1);
-[hBounds.LineStyle]=deal('--');
-[hBounds.Color]=deal([1 0 0 0.6]);
+% Had used for linear plots, no longer used
+% hFIT = findobj(gca,'DisplayName','Fit');
+% [hFIT.LineWidth]=deal(2);
+% [hFIT.Color]=deal([0.2 0.2 0.2 0.7]);
+% 
+% hBounds = [findobj(gca,'DisplayName',''); findobj(gca,'DisplayName','Confidence bounds')];
+% [hBounds.LineWidth]=deal(1);
+% [hBounds.LineStyle]=deal('--');
+% [hBounds.Color]=deal([1 0 0 0.6]);
 
 title('')
-legend({'','Fitted Model', 'Conf. Limits'})
+% legend({'','Fitted Model', 'Conf. Limits'})
+legend({'','Fitted Model'})
 set(gca, 'LineWidth', 1.5)
 set(gca,'FontWeight','bold')
 set(figure(6), 'Position', [360,738,229,184]);
 
 % set(figure(1), 'Position', [360,660,309,262]);
+
 %% Save Figures
 
-exportgraphics(figure(2), "C:\Users\Denis\OneDrive - Johns Hopkins\230124 Spatial Distribution Paper\Figures\4. CEUS vs non-CEUS\230713 (230117 Rat2) corr.pdf",'ContentType','vector');
-exportgraphics(figure(6), "C:\Users\Denis\OneDrive - Johns Hopkins\230124 Spatial Distribution Paper\Figures\4. CEUS vs non-CEUS\230713 All rats corr.pdf",'ContentType','vector');
+exportgraphics(figure(2), "C:\Users\Denis\OneDrive - Johns Hopkins\Lab Personal\230824 Spatial Distribution Paper\Figures\4. CEUS vs non-CEUS\231016 (230117 Rat2) corr.pdf",'ContentType','vector');
+exportgraphics(figure(6), "C:\Users\Denis\OneDrive - Johns Hopkins\Lab Personal\230824 Spatial Distribution Paper\Figures\4. CEUS vs non-CEUS\231016 All rats corr.pdf",'ContentType','vector');
+
+%%  Supplementary Figure for error plot
+
+% initialize distance axis
+plot_dist = dist(dist_inds(1):dist_inds(2));
+
+% error (S1A)
+% mean_err = mean(100*err_dist, 1, 'omitnan');
+% err_var = std(100*err_dist, 1, 'omitnan');
+
+% error magnitude (S1B)
+mean_err = mean(abs(100*err_dist), 1, 'omitnan');
+err_var = std(abs(100*err_dist), 1, 'omitnan');
+
+
+figure(4)
+set(figure(4), 'Position', [254,502,516,150]);
+plot(plot_dist, mean_err, 'LineWidth', 2, 'Color', [0.8, 0, 0])
+hold on
+
+fill([plot_dist fliplr(plot_dist)],[mean_err-err_var fliplr(mean_err+err_var)],'r', ...
+            'linestyle','none', 'FaceColor', 'r', 'FaceAlpha', '0.3');
+hold off
+
+xlabel('Distance from Injury Epicenter (mm)')
+% ylabel({'Mean Error','(%)'})
+ylabel({'Mean Error','Magnitude (%)'})
+
+set(gca,'FontWeight','bold')
+set(gca,'LineWidth',1.5)
+
+exportgraphics(figure(4), ...
+    "C:\Users\Denis\OneDrive - Johns Hopkins\Lab Personal\230824 Spatial Distribution Paper\Figures\4. CEUS vs non-CEUS\231019 Supp Error mag.pdf",'ContentType','vector');
 
 
 %% Section 6: Calculation of rho and p from multiple measurements

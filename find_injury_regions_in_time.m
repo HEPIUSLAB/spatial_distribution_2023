@@ -39,12 +39,22 @@ function [pre_values, post_values] = find_injury_regions_in_time(all_rats, dist,
                         'CranNormHeight',[], ...
                         'CaudNormHeight',[]);
     
+    % for pre-injury time series
+%     pre_values = struct('Time',[], ...
+%                         'InjuryHeight',[], ...
+%                         'CranPenHeight',[], ...
+%                         'CaudPenHeight',[], ...
+%                         'CranNormHeight',[], ...
+%                         'CaudNormHeight',[]);
+    
     % perform processing for each rat
     for rat = 1:length(all_rats)
 
         % load relevant variable from structure
         time = [all_rats(rat).TimePost];
+        timepre = [all_rats(rat).TimePre];
         time = time-all_rats(rat).InjuryTime;
+        timepre = timepre-all_rats(rat).InjuryTime;
         avpost = [all_rats(rat).FlowPost];
         avpre = [all_rats(rat).FlowPre];        
 
@@ -52,11 +62,13 @@ function [pre_values, post_values] = find_injury_regions_in_time(all_rats, dist,
         if rat == 2
             avpost = avpost(1:end-200,:);
             time = time(1:end-200);
+            timepre = timepre(1:end-200);
         end
 
         if rat == 8
             avpost = avpost(1:266,:);
             time = time(1:266);
+            timepre = timepre(1:266);
         end
 
         % skip if no data post-injury
@@ -71,6 +83,8 @@ function [pre_values, post_values] = find_injury_regions_in_time(all_rats, dist,
         
         % pre values are averaged over time
         pre_values(rat) = pre_rat;
+%         pre_values(rat).Time = timepre/60;
+
         
         % plot to evaluate code/results
         if plot_bool

@@ -15,7 +15,7 @@ load(fullfile(data_drive,'230119 Rat SCBF and CEUS\Spatial Distribution\230119 R
 load(fullfile(data_drive,'230119 Rat SCBF and CEUS\Spatial Distribution\230119 1 px CEUS.mat'));
 
 % choose save location
-save_path = 'C:\Users\Denis\OneDrive - Johns Hopkins\230124 Spatial Distribution Paper\Figures\3. CEUS Quantification';
+save_path = 'C:\Users\Denis\OneDrive - Johns Hopkins\Lab Personal\230824 Spatial Distribution Paper\Figures\3. CEUS Quantification';
 
 % load images and normalize for better visibility
 unfilt_image = S_CEUS_im(3).Image/max(S_CEUS_im(3).ImageFilt,[],'all');
@@ -24,6 +24,16 @@ repr_image = S_CEUS_im(3).ImageFilt/max(S_CEUS_im(3).ImageFilt,[],'all');
 % image enhancement for visibility and saving
 % imwrite(unfilt_image,fullfile(save_path, 'unfilteredCEUS.png'));
 % imwrite(repr_image,fullfile(save_path, 'filteredCEUS.png'));
+
+% generate mask for scale bar
+delxy = listing(2).delxy; % cm/px
+scale_length = 0.5;
+ind_length = floor(scale_length/delxy);
+
+maskIm = zeros([size(repr_image),3]);
+maskIm(30:50, end-30-ind_length:end-30,:) = repmat(reshape([0.8 0.8 0.8], 1, 1, 3), 21, 231);
+
+imwrite(maskIm,fullfile(save_path, 'scale_bar_mask.png'));
 
 % individual pixel traces
 trace1 = RawFlow(198,627,:);
@@ -58,17 +68,28 @@ for tt = 0:20:t(end)
     imwrite(rawIm,fullfile(save_path, 'CHI images', sprintf('CHI %ds.png', tt)));
 end
 
+
 %% Figure 4
+
+% open this script for more granularity
+benchtop_SMI
+
+%% Figure 5
 
 % open this script for more granularity
 CEUS_NCUS_pixwise_comparison
 
-%% Figure 3,5,6 
+%% Figure 3,6,7 
 
 % open this script for more granularity
 impact_force_analysis
 
-%% Figure 7
+%% Figure 8
 
 % open this script for more granularity
 time_evolution
+
+%% Supplementary figure for control rats
+
+% open this script for more granularity
+control_rats
