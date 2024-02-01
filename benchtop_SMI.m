@@ -130,3 +130,26 @@ exportgraphics(figure(2),...
 for rr = 1:size(rho,2)
     fprintf('%s; size %s rho: %.02f; p: %.02f\n', scale{mod(rr-1,3)+1}, legend_titles{rr}, rho(1,rr), pval(1,rr))
 end
+
+
+%% Supplementary Image of Phantom
+
+save_path = "C:\Users\Denis\OneDrive - Johns Hopkins\Lab Personal\230824 Spatial Distribution Paper\Figures\4. Benchtop Phantom\";
+vidname = "E:\Data\231013 Benchtop SMI Test\US\2023-10-13 12-25-25.mkv";
+frame_path = 'E:\Data\231013 Benchtop SMI Test\US\Frames\2023-10-13 12-25-25\2023-10-13 12-25-25 frames 21501 - 21750.mat';
+
+load(frame_path);
+v = VideoReader(vidname);
+
+frame = read(v, 21510);
+vel_frame = velocity(:,:,10);
+
+frame2save = frame(473:656, 683:843,:);
+
+%%
+vel_frame2save = vel_frame(473:656, 683:843);
+vel_frame2save(10:20, end-10-46:end-10) = 1;
+
+%%
+% imwrite(frame2save,fullfile(save_path, '231127 Phantom Raw.png'));
+imwrite(vel_frame2save,fullfile(save_path, '231201 Phantom Proc.png'));
