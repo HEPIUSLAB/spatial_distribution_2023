@@ -14,7 +14,7 @@ clear; close all;
 %%%%%%%% MAKE SURE TO SET ALL AUTOMODE VARIABLES TO TRUE!!! %%%%%%%%%%%
 %%%%%%%%%    DISREGARD IF YOU HAVE NOT EDITED THE CODE     %%%%%%%%%%%%
 
-fpath = uigetdir('E:\Data\');
+fpath = uigetdir();
 
 % extract dicom frames and save autorun file
 full_dicom_listing = extract_dicom_info(fpath, true);
